@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <defs>
+    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#1a2434"/>
+      <stop offset="100%" stop-color="#2c3e50"/>
+    </linearGradient>
+  </defs>
+  <rect width="64" height="64" rx="10" fill="url(#sky)"/>
+  <!-- 远山 -->
+  <path d="M0 46 L10 38 L18 44 L28 34 L38 42 L48 32 L58 40 L64 36 L64 64 L0 64 Z" fill="#5a6b7a" opacity="0.55"/>
+  <!-- 近山 -->
+  <path d="M0 54 L8 46 L16 52 L26 42 L34 50 L44 40 L54 48 L64 44 L64 64 L0 64 Z" fill="#1a2434" opacity="0.9"/>
+  <!-- 烟雨细线 -->
+  <g stroke="#ece6d8" stroke-width="0.6" opacity="0.35">
+    <line x1="14" y1="14" x2="11" y2="22"/>
+    <line x1="26" y1="10" x2="23" y2="18"/>
+    <line x1="40" y1="13" x2="37" y2="21"/>
+    <line x1="50" y1="9" x2="47" y2="17"/>
+  </g>
+  <!-- 朱砂印章 -->
+  <rect x="46" y="46" width="12" height="12" rx="1.5" fill="#c0392b"/>
+  <text x="52" y="55" font-family="KaiTi, STKaiti, serif" font-size="9" font-weight="700" fill="#ece6d8" text-anchor="middle">灵</text>
+</svg>

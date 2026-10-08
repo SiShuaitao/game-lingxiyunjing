@@ -1,0 +1,31 @@
+spring:
+  application:
+    name: game-lingxiyunjing-backend
+  datasource:
+    url: jdbc:mysql://localhost:3306/gamessxu_lingxi?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true&createDatabaseIfNotExist=true
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    username: root
+    password: 123456
+  sql:
+    init:
+      mode: always
+      continue-on-error: false
+      encoding: UTF-8
+      schema-locations: classpath:schema.sql
+      data-locations: classpath:data.sql
+
+server:
+  port: 8084
+
+mybatis-plus:
+  configuration:
+    map-underscore-to-camel-case: true
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+  global-config:
+    db-config:
+      id-type: AUTO
+
+logging:
+  level:
+    com.shixingxu: INFO
+    org.springframework: WARN

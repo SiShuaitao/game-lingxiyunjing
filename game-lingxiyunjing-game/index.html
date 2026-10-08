@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>灵汐云境 LING XI · 云境漫游试玩</title>
+<style>
+  :root {
+    --ink: #3A4A66;
+    --muted: #6B7C9C;
+    --blue: #5EB2EE;
+    --pink: #FFB7D1;
+    --mint: #9FE8C9;
+    --violet: #C9B8F0;
+    --cream: #FFE3A3;
+    --heart: #FF6F9E;
+    --glass: rgba(255,255,255,0.82);
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body {
+    width: 100%; height: 100%; overflow: hidden;
+    font-family: "PingFang SC", "Microsoft YaHei", "Hiragino Sans GB", KaiTi, sans-serif;
+    color: var(--ink);
+    background:
+      radial-gradient(1200px 700px at 20% -10%, #D9F0FF 0%, transparent 55%),
+      radial-gradient(1000px 700px at 110% 20%, #FBE3F1 0%, transparent 55%),
+      linear-gradient(180deg, #F2F9FF 0%, #FBF5FF 100%);
+    user-select: none;
+  }
+  #game { position: fixed; inset: 0; display: block; cursor: crosshair; }
+
+  /* ============ 通用玻璃面板 ============ */
+  .panel {
+    position: fixed; z-index: 30;
+    background: var(--glass);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    border: 1.5px solid rgba(255,255,255,0.9);
+    border-radius: 22px;
+    box-shadow: 0 18px 50px rgba(110,140,190,0.22);
+  }
+  button {
+    font-family: inherit; color: var(--ink);
+    border: none; border-radius: 14px;
+    padding: 10px 22px; font-size: 15px; cursor: pointer;
+    background: linear-gradient(180deg, #FFFFFF, #EDF5FF);
+    box-shadow: 0 4px 12px rgba(110,140,190,0.18);
+    transition: transform .12s, box-shadow .12s;
+  }
+  button:hover:not(:disabled) { transform: translateY(-1px); box-shadow: 0 7px 18px rgba(110,140,190,0.25); }
+  button:disabled { opacity: .5; cursor: not-allowed; }
+  button.primary {
+    background: linear-gradient(180deg, #8FD0FF, #5EB2EE); color: #fff;
+  }
+  button.pink { background: linear-gradient(180deg, #FFC9DE, #FFA3C7); color: #fff; }
+
+  /* ============ 主菜单 ============ */
+  #menu {
+    position: fixed; inset: 0; z-index: 40;
+    display: none; align-items: center; justify-content: center;
+    background:
+      radial-gradient(900px 500px at 30% 20%, rgba(184,231,255,.55), transparent 60%),
+      radial-gradient(800px 500px at 80% 80%, rgba(255,209,228,.55), transparent 60%);
+  }
+  #menu.show { display: flex; }
+  .menu-card {
+    width: min(460px, 88vw); padding: 46px 42px 40px;
+    text-align: center;
+    background: rgba(255,255,255,0.72);
+    border: 1.5px solid rgba(255,255,255,0.95);
+    border-radius: 30px;
+    backdrop-filter: blur(16px);
+    box-shadow: 0 30px 70px rgba(110,140,190,0.25);
+  }
+  .menu-title {
+    font-size: 42px; letter-spacing: 8px; font-weight: 800;
+    background: linear-gradient(90deg, #5EB2EE, #C98FE8, #FF9EC4);
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+  }
+  .menu-en { margin-top: 6px; letter-spacing: 6px; color: var(--muted); font-size: 13px; }
+  .menu-sub { margin-top: 18px; color: var(--muted); font-size: 14px; line-height: 1.9; }
+  .menu-btns { margin-top: 30px; display: flex; flex-direction: column; gap: 14px; }
+  .menu-btns button { padding: 13px; font-size: 16px; }
+  .menu-save-info {
+    font-size: 12px; color: var(--muted);
+    letter-spacing: 1px; margin: -4px 0 -2px;
+  }
+  .pause-tip {
+    margin: -8px 0 18px; font-size: 12.5px;
+    color: var(--muted); letter-spacing: 1px;
+  }
+
+  /* ============ 帮助 ============ */
+  #help { display: none; }
+  #help.show { display: block; }
+  .modal-mask {
+    position: fixed; inset: 0; z-index: 50;
+    display: none; align-items: center; justify-content: center;
+    background: rgba(160,190,230,0.25);
+  }
+  .modal-mask.show { display: flex; }
+  .help-card { width: min(520px, 90vw); padding: 32px 34px; }
+  .help-card h3 { font-size: 20px; margin-bottom: 16px; letter-spacing: 2px; }
+  .help-list { list-style: none; line-height: 2.25; font-size: 15px; color: var(--ink); }
+  .help-list b {
+    display: inline-block; min-width: 76px; color: var(--blue);
+  }
+  .help-close-wrap { text-align: right; margin-top: 18px; }
+
+  /* ============ HUD ============ */
+  #hud {
+    position: fixed; inset: 0; z-index: 10;
+    pointer-events: none;
+  }
+  .hud-top {
+    position: absolute; top: 14px; left: 16px; right: 16px;
+    display: flex; align-items: center; gap: 14px;
+  }
+  .hud-pill {
+    background: var(--glass);
+    border: 1.5px solid rgba(255,255,255,0.9);
+    border-radius: 999px; padding: 7px 16px;
+    font-size: 14px; font-weight: 600;
+    box-shadow: 0 6px 16px rgba(110,140,190,0.16);
+    backdrop-filter: blur(8px);
+  }
+  #hud-hearts { color: var(--heart); letter-spacing: 1px; }
+  #hud-rupees { color: #37B887; }
+  #hud-keys { color: #D99A2E; }
+  #hud-loc { margin-left: auto; color: var(--muted); }
+
+  /* 工具栏 */
+  #toolbar {
+    position: absolute; bottom: 18px; left: 50%;
+    transform: translateX(-50%);
+    display: flex; gap: 10px;
+    pointer-events: auto;
+  }
+  .tool-slot {
+    width: 62px; padding: 8px 4px 7px;
+    text-align: center; border-radius: 16px;
+    background: var(--glass);
+    border: 1.5px solid rgba(255,255,255,0.9);
+    box-shadow: 0 8px 20px rgba(110,140,190,0.18);
+    cursor: pointer; transition: transform .12s;
+    position: relative;
+  }
+  .tool-slot:hover { transform: translateY(-2px); }
+  .tool-slot .ti { font-size: 22px; line-height: 1.2; }
+  .tool-slot .tn { font-size: 11px; color: var(--muted); margin-top: 2px; }
+  .tool-slot .tc { font-size: 10px; color: var(--blue); min-height: 12px; }
+  .tool-slot.active {
+    border-color: var(--blue);
+    box-shadow: 0 0 0 3px rgba(94,178,238,0.25), 0 8px 20px rgba(110,140,190,0.2);
+  }
+  .tool-slot.locked { opacity: .42; }
+
+  /* ============ Toast ============ */
+  #toast {
+    position: fixed; top: 64px; left: 50%; z-index: 20;
+    transform: translateX(-50%) translateY(-8px);
+    max-width: 80vw; padding: 10px 22px;
+    background: rgba(255,255,255,0.9);
+    border-radius: 999px; font-size: 14px;
+    color: var(--ink); opacity: 0; pointer-events: none;
+    box-shadow: 0 8px 24px rgba(110,140,190,0.2);
+    transition: opacity .25s, transform .25s;
+  }
+  #toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+  /* ============ 对白 ============ */
+  #dialogue {
+    position: fixed; left: 50%; bottom: 96px; z-index: 25;
+    width: min(680px, 92vw);
+    transform: translateX(-50%) translateY(14px);
+    opacity: 0; pointer-events: none;
+    padding: 20px 26px 16px;
+    background: var(--glass);
+    border: 1.5px solid rgba(255,255,255,0.95);
+    border-radius: 22px;
+    backdrop-filter: blur(14px);
+    box-shadow: 0 16px 44px rgba(110,140,190,0.24);
+    transition: opacity .2s, transform .2s;
+  }
+  #dialogue.show { opacity: 1; pointer-events: auto; transform: translateX(-50%) translateY(0); }
+  #dlg-name {
+    display: inline-block; font-size: 15px; font-weight: 700;
+    color: #fff; background: linear-gradient(90deg, #7EC8F7, #B79BE8);
+    padding: 3px 16px; border-radius: 999px; margin-bottom: 10px;
+  }
+  #dlg-text { font-size: 16px; line-height: 1.9; min-height: 30px; }
+  .dlg-hint { text-align: right; font-size: 12px; color: var(--muted); margin-top: 6px; }
+
+  /* ============ 商店 ============ */
+  #shop { display: none; z-index: 35; }
+  #shop.show { display: block; }
+  .shop-card { width: min(440px, 90vw); padding: 26px 28px; }
+  .shop-card h3 { font-size: 19px; margin-bottom: 14px; letter-spacing: 2px; }
+  .shop-row {
+    display: flex; align-items: center; gap: 12px;
+    padding: 11px 4px; border-bottom: 1px dashed rgba(150,170,200,0.35);
+  }
+  .sg-name { flex: 1; font-size: 15px; }
+  .sg-price { color: #37B887; font-size: 14px; font-weight: 600; }
+  .sg-buy { padding: 7px 16px; font-size: 13px; }
+  .shop-foot { text-align: right; margin-top: 14px; }
+
+  /* ============ 暂停 / 死亡 / 结局 ============ */
+  .center-card {
+    width: min(380px, 88vw); padding: 34px 36px; text-align: center;
+  }
+  .center-card h3 { font-size: 24px; letter-spacing: 4px; margin-bottom: 20px; }
+  .center-btns { display: flex; flex-direction: column; gap: 12px; }
+
+  #pause { display: none; }
+  #pause.show { display: flex; }
+
+  #death { display: none; }
+  #death.show { display: flex; }
+  #death .center-card h3 { color: #E0708C; }
+
+  #ending { display: none; }
+  #ending.show { display: flex; }
+  .ending-card { width: min(520px, 90vw); padding: 44px 40px; text-align: center; }
+  .ending-card h3 {
+    font-size: 28px; letter-spacing: 6px; margin-bottom: 18px;
+    background: linear-gradient(90deg, #5EB2EE, #E08FC8);
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+  }
+  .ending-card p { color: var(--muted); line-height: 2; font-size: 14px; margin-bottom: 24px; }
+</style>
+</head>
+<body>
+  <canvas id="game" tabindex="0"></canvas>
+
+  <!-- HUD -->
+  <div id="hud">
+    <div class="hud-top">
+      <span class="hud-pill" id="hud-hearts">♥♥♥</span>
+      <span class="hud-pill" id="hud-rupees">◆ 0</span>
+      <span class="hud-pill" id="hud-keys">⚷ 0</span>
+      <span class="hud-pill" id="hud-loc"></span>
+    </div>
+    <div id="toolbar">
+      <div class="tool-slot" data-tool="sword">
+        <div class="ti">🗡️</div><div class="tn">短剑</div><div class="tc">J</div>
+      </div>
+      <div class="tool-slot" data-tool="boomerang">
+        <div class="ti">🪃</div><div class="tn">回力镖</div><div class="tc">1</div>
+      </div>
+      <div class="tool-slot" data-tool="bow">
+        <div class="ti">🏹</div><div class="tn">星弓</div><div class="tc"></div>
+      </div>
+      <div class="tool-slot" data-tool="bombs">
+        <div class="ti">💣</div><div class="tn">爆弹</div><div class="tc"></div>
+      </div>
+    </div>
+  </div>
+
+  <div id="toast"></div>
+
+  <!-- 对白 -->
+  <div id="dialogue">
+    <div id="dlg-name"></div>
+    <div id="dlg-text"></div>
+    <div class="dlg-hint">E / 点击 继续</div>
+  </div>
+
+  <!-- 商店 -->
+  <div class="modal-mask" id="shop">
+    <div class="panel shop-card">
+      <h3>杂货铺 · 巴鲁</h3>
+      <div id="shop-list"></div>
+      <div class="shop-foot"><button id="shop-close">离开</button></div>
+    </div>
+  </div>
+
+  <!-- 帮助 -->
+  <div class="modal-mask" id="help">
+    <div class="panel help-card">
+      <h3>云境漫游手册</h3>
+      <ul class="help-list">
+        <li><b>移动</b>W A S D / 方向键</li>
+        <li><b>挥剑</b>J（或鼠标点击，面朝指针）</li>
+        <li><b>使用道具</b>K / 鼠标右键</li>
+        <li><b>切换道具</b>1 回力镖 · 2 星弓 · 3 爆弹</li>
+        <li><b>循环切换</b>Tab 或 鼠标滚轮（只在已拥有的道具间）</li>
+        <li><b>仙露</b>Q（一次回满全部心）</li>
+        <li><b>交谈 / 查看 / 开箱</b>E</li>
+        <li><b>暂停</b>Esc（菜单内可手动保存）</li>
+        <li><b>保存</b>仅手动保存，游戏不会自动存档</li>
+      </ul>
+      <div class="help-close-wrap"><button id="help-close" class="primary">明白了</button></div>
+    </div>
+  </div>
+
+  <!-- 主菜单 -->
+  <div id="menu">
+    <div class="menu-card">
+      <div class="menu-title">灵汐云境</div>
+      <div class="menu-en">L I N G　X I</div>
+      <div class="menu-sub">云海涨潮的那一夜，云隙开了一条路。<br>铃在响，茶正热，等一个愿意走远路的人。</div>
+      <div class="menu-btns">
+        <button class="primary" id="btn-start">开始新旅程</button>
+        <button id="btn-continue">继续上次旅程</button>
+        <p class="menu-save-info" id="last-save"></p>
+        <button id="btn-help">漫游手册</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 暂停 -->
+  <div class="modal-mask" id="pause">
+    <div class="panel center-card">
+      <h3>歇口气</h3>
+      <p class="pause-tip">进度仅在点「保存进度」后写入</p>
+      <div class="center-btns">
+        <button class="primary" id="btn-resume">继续旅程</button>
+        <button id="btn-save">保存进度</button>
+        <button id="btn-menu">回到主菜单</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 死亡 -->
+  <div class="modal-mask" id="death">
+    <div class="panel center-card">
+      <h3>心散成了云</h3>
+      <div class="center-btns">
+        <button class="pink" id="btn-death-respawn">从入口醒来</button>
+        <button id="btn-death-menu">回到主菜单</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 结局 -->
+  <div class="modal-mask" id="ending">
+    <div class="panel ending-card">
+      <h3>云开见汐</h3>
+      <p>梦源重新亮起，四境的风都慢了下来。<br>
+        风铃镇的茶会还留着你的位子，怀表兔说这次绝不催你。<br>
+        —— 谢谢你走完了这一路。</p>
+      <div class="center-btns">
+        <button class="primary" id="btn-end-roam">继续在云境漫游</button>
+        <button id="btn-end-menu">回到主菜单</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 顺序加载：配置 → 数据 → 核心 → 场景 → 渲染 → 界面 → 主控 -->
+  <script src="js/config.js?v=17"></script>
+  <script src="js/data.js?v=17"></script>
+  <script src="js/core.js?v=17"></script>
+  <script src="js/scenes.js?v=17"></script>
+  <script src="js/render.js?v=17"></script>
+  <script src="js/ui.js?v=17"></script>
+  <script src="js/main.js?v=17"></script>
+</body>
+</html>
